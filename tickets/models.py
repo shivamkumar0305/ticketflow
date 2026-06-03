@@ -41,5 +41,21 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.title
+
+class Comment(models.Model):
+    ticket = models.ForeignKey(Ticket, related_name='comments', on_delete=models.CASCADE)
+    posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='comments', on_delete=models.CASCADE)
+    comment = models.TextField()
+
+    posted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment posted by {self.posted_by} on {self.posted_at}"
+
+
+
+
 
 
