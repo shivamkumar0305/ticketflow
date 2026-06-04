@@ -9,6 +9,9 @@ from .models import Ticket,STATUS_CHOICES
 from accounts.models import User
 from rest_framework.decorators import action
 
+from .tasks import send_ticket_email_task
+
+
 
 valid_statuses = []
 for choice in STATUS_CHOICES:
@@ -57,6 +60,9 @@ class TicketsViewset(viewsets.ModelViewSet):
         ticket.assigned_to = agent
         ticket.save()
 
+    
+        send_ticket_email_task.delay(ticket.id, 'assigned',agent.email)
+
         serializer = self.get_serializer(ticket)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -83,6 +89,9 @@ class TicketsViewset(viewsets.ModelViewSet):
         ticket.status = new_status
         ticket.save()
 
+        if new_status in ['closed','resolved'] and ticket.created_by.email:
+            send_ticket_email_task.delay(ticket.id, 'resolved',ticket.created_by.email)
+
         serializer = self.get_serializer(ticket)
         return Response(
             {'message':'status updated!'}, status=status.HTTP_200_OK
@@ -95,6 +104,13 @@ class TicketsViewset(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        print(f"ticket is creating")
+        ticket = serializer.save(created_by=self.request.user)
+        if ticket.created_by.email:
+            send_ticket_email_task.delay(
+                ticket.id,
+                'created',
+                ticket.created_by.email
+            )
 
 

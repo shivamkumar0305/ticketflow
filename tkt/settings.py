@@ -11,9 +11,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os 
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_DIR = Path(__file__).resolve().parent 
+
+load_dotenv(ENV_DIR / ".env")
+
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -35,8 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'comments',
     'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'django.contrib.auth', 'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -124,3 +131,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'accounts.User'
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0' #tells celery where to find redis 
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+RESEND_FROM_EMAIL = "onboarding@resend.dev"
+
+
+print(f"[DEBUG] .env path: {ENV_DIR / '.env'}")
+print(f"[DEBUG] .env exists: {(ENV_DIR / '.env').exists()}")
+print(f"[DEBUG] EMAIL_HOST_USER: {os.environ.get('EMAIL_HOST_USER', 'NOT SET')}")
