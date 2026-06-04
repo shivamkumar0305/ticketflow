@@ -1,6 +1,20 @@
 from django.db import models
 from django.conf import settings
 
+
+STATUS_CHOICES = [
+        ('open','Open'),
+        ('in_progress','In Progress'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    ]
+
+PRIORITY_CHOICES = [
+        ('low' , 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+
 class Ticket(models.Model):
 
     STATUS_CHOICES = [

@@ -4,10 +4,15 @@ from rest_framework.response import Response
 from rest_framework import viewsets,status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializers import TicketSerializer
-from .models import Ticket
+from .models import Ticket,STATUS_CHOICES 
+
 from accounts.models import User
 from rest_framework.decorators import action
 
+
+valid_statuses = []
+for choice in STATUS_CHOICES:
+    valid_statuses.append(choice[0])
 
 
 
@@ -54,6 +59,36 @@ class TicketsViewset(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(ticket)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(
+        detail=True,
+        methods =['patch'],
+        url_path='status_update',
+        permission_classes=[IsAuthenticated,IsAdminUser]
+    )
+    def status_update(self, request, pk=None): #what does pk=none do? 
+        ticket = self.get_object()
+        new_status = request.data.get('status')
+
+        if not new_status:
+            return Response(
+                {"error":"send a status"}, status = status.HTTP_400_BAD_REQUEST
+            )
+        
+        if new_status not in valid_statuses:
+            return Response(
+                {'error':'pass only valid statuses'}, status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        ticket.status = new_status
+        ticket.save()
+
+        serializer = self.get_serializer(ticket)
+        return Response(
+            {'message':'status updated!'}, status=status.HTTP_200_OK
+        )
+    
+
     
     
 
