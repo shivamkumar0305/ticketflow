@@ -10,17 +10,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta :
         model= User
-        fields = ['id','email','is_staff','is_active','role','password']
+        fields = ['id','email','full_name','is_staff','is_active','role','password']
         read_only_fields = ['id','is_staff','is_active']
 
     def create(self, validated_data):
 
         user_role = validated_data.get('role','US')
+        full_name = validated_data.get('full_name', '') # Get full_name from validated_data
 
         user = User.objects.create_user(
             email = validated_data['email'],
             password= validated_data['password'],
-        
+            full_name = full_name # Assign full_name
         )
 
         user.role = user_role

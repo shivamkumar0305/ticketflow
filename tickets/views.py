@@ -60,8 +60,10 @@ class TicketsViewset(viewsets.ModelViewSet):
         ticket.assigned_to = agent
         ticket.save()
 
-    
-        send_ticket_email_task.delay(ticket.id, 'assigned',agent.email)
+        try:
+            send_ticket_email_task.delay(ticket.id, 'assigned',agent.email)
+        except Exception as e:
+            print(f"Failed to queue assignment email: {e}")
 
         serializer = self.get_serializer(ticket)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -90,7 +92,10 @@ class TicketsViewset(viewsets.ModelViewSet):
         ticket.save()
 
         if new_status in ['closed','resolved'] and ticket.created_by.email:
-            send_ticket_email_task.delay(ticket.id, 'resolved',ticket.created_by.email)
+            try:
+                send_ticket_email_task.delay(ticket.id, 'resolved',ticket.created_by.email)
+            except Exception as e:
+                print(f"Failed to queue resolution email: {e}")
 
         serializer = self.get_serializer(ticket)
         return Response(
@@ -107,10 +112,13 @@ class TicketsViewset(viewsets.ModelViewSet):
         print(f"ticket is creating")
         ticket = serializer.save(created_by=self.request.user)
         if ticket.created_by.email:
-            send_ticket_email_task.delay(
-                ticket.id,
-                'created',
-                ticket.created_by.email
-            )
+            try:
+                send_ticket_email_task.delay(
+                    ticket.id,
+                    'created',
+                    ticket.created_by.email
+                )
+            except Exception as e:
+                print(f"Failed to queue creation email: {e}")
 
 

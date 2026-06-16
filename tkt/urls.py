@@ -19,7 +19,6 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('accounts.urls')),
-    path('tic/', include('tickets.urls')),
-    path('',include('comments.urls'))
+    path('accounts/',include('accounts.urls')),
+    path('tickets/', include('tickets.urls')),
 ]

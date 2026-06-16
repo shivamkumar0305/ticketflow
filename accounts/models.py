@@ -34,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     email = models.EmailField(unique=True, null=False, blank=False)
+    full_name = models.CharField(max_length=255, blank=True, null=True) # Added full_name field
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     role = models.CharField(max_length=2, choices=ROLE_CHOICE, default='AG')
